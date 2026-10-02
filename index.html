@@ -1,325 +1,789 @@
-            <!DOCTYPE html>
+           <!DOCTYPE html>
 <html lang="tr">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Yemek Avcısı</title>
+    <title>gadanagozs.html</title>
     <style>
         body {
             margin: 0;
-            padding: 0;
-            overflow: hidden;
-            background-color: #ffeaa7;
-            font-family: 'Comic Sans MS', cursive, sans-serif;
-            user-select: none;
+            min-height: 100vh;
+            background-color: #0f172a;
+            font-family: Arial, sans-serif;
+            color: #ffffff;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
         }
 
-        /* Menü Ekranları */
-        .screen {
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 100vw;
-            height: 100vh;
+        /* Giriş Ekranı */
+        #login-screen {
             display: flex;
             flex-direction: column;
             align-items: center;
             justify-content: center;
-            background-color: rgba(255, 234, 167, 0.95);
-            z-index: 50;
+            height: 100vh;
+            gap: 15px;
+            position: relative;
+            z-index: 10;
         }
 
-        h1 {
-            font-size: 60px;
-            color: #d35400;
-            margin-bottom: 10px;
-            text-shadow: 2px 2px white;
-            text-align: center;
+        .role-selector, .account-selector {
+            display: flex;
+            gap: 8px;
+            margin-bottom: 5px;
+            flex-wrap: wrap;
+            justify-content: center;
+            max-width: 320px;
         }
 
-        h2 { color: #2c3e50; }
+        .role-btn, .account-btn {
+            background-color: #1e293b;
+            border: 2px solid #334155;
+            color: white;
+            padding: 8px 12px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: bold;
+            font-size: 0.9rem;
+        }
 
-        .btn {
-            margin: 10px;
-            padding: 15px 30px;
-            font-size: 24px;
-            background-color: #e67e22;
+        .role-btn.active, .account-btn.active {
+            border-color: #3b82f6;
+            background-color: #1d4ed8;
+        }
+
+        input, textarea {
+            padding: 10px 15px;
+            font-size: 1rem;
+            border-radius: 8px;
+            border: 1px solid #334155;
+            background-color: #1e293b;
+            color: white;
+            outline: none;
+            width: 250px;
+        }
+
+        button.action-btn {
+            padding: 10px 20px;
+            font-size: 1rem;
+            background-color: #3b82f6;
             color: white;
             border: none;
-            border-radius: 15px;
+            border-radius: 8px;
             cursor: pointer;
-            box-shadow: 0 4px 6px rgba(0,0,0,0.2);
-            transition: transform 0.1s, background-color 0.2s;
-            font-family: inherit;
+            font-weight: bold;
         }
 
-        .btn:hover { background-color: #d35400; transform: scale(1.05); }
-        .btn:active { transform: scale(0.95); }
-        
-        .btn-green { background-color: #27ae60; }
-        .btn-green:hover { background-color: #2ecc71; }
+        button.action-btn:hover {
+            background-color: #2563eb;
+        }
 
-        /* Yemek Seçim Butonları */
-        .food-grid {
-            display: flex;
-            gap: 15px;
-            margin-bottom: 20px;
-            flex-wrap: wrap;
+        /* Ana Site Alanı */
+        #main-site {
+            display: none;
+            width: 100%;
+            max-width: 1050px;
+            padding: 20px;
+            box-sizing: border-box;
+            gap: 20px;
             justify-content: center;
         }
 
-        .food-btn {
-            font-size: 40px;
-            padding: 10px 20px;
-            background: white;
-            border: 3px solid transparent;
-            border-radius: 15px;
+        .content-area {
+            flex: 1;
+            max-width: 550px;
+        }
+
+        .sidebar {
+            width: 210px;
+            background-color: #1e293b;
+            border: 1px solid #334155;
+            border-radius: 10px;
+            padding: 15px;
+            height: fit-content;
+        }
+
+        .sidebar h4 {
+            margin-top: 0;
+            color: #38bdf8;
+            font-size: 0.95rem;
+            border-bottom: 1px solid #334155;
+            padding-bottom: 8px;
+        }
+
+        .active-user-item {
+            font-size: 0.85rem;
+            padding: 6px 0;
+            color: #cbd5e1;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 1px solid #1e293b;
+        }
+
+        .user-info-left {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .online-dot {
+            width: 8px;
+            height: 8px;
+            background-color: #22c55e;
+            border-radius: 50%;
+            box-shadow: 0 0 6px #22c55e;
+        }
+
+        .offline-dot {
+            width: 8px;
+            height: 8px;
+            background-color: #ef4444;
+            border-radius: 50%;
+            box-shadow: 0 0 6px #ef4444;
+        }
+
+        .dnd-dot {
+            width: 8px;
+            height: 8px;
+            background-color: #eab308;
+            border-radius: 50%;
+            box-shadow: 0 0 6px #eab308;
+        }
+
+        .mute-action-btn {
+            background-color: #ef4444;
+            color: white;
+            border: none;
+            padding: 2px 6px;
+            font-size: 0.75rem;
+            border-radius: 4px;
             cursor: pointer;
         }
-
-        .food-btn.selected {
-            border-color: #e74c3c;
-            background-color: #fad390;
+        .mute-action-btn.muted {
+            background-color: #eab308;
         }
 
-        /* Oyun İçi Arayüz */
-        #gameArea { display: none; width: 100vw; height: 100vh; position: relative; }
-        
-        #ui {
-            position: absolute;
-            top: 20px;
-            left: 20px;
-            z-index: 10;
-            font-size: 24px;
+        .current-account-box {
+            font-size: 0.9rem;
+            background: #0f172a;
+            padding: 8px;
+            border-radius: 6px;
+            text-align: center;
             font-weight: bold;
-            color: #2c3e50;
-            background: white;
-            padding: 10px 20px;
-            border-radius: 15px;
-            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+            color: #38bdf8;
+            margin-bottom: 10px;
         }
 
-        /* Düşen Yemekler */
-        .food-item {
-            position: absolute;
-            font-size: 60px; /* Yemeklerin büyüklüğü */
+        /* Durum Seçici (Sol Panel) */
+        .status-selector {
+            display: flex;
+            flex-direction: column;
+            gap: 5px;
+            margin-bottom: 15px;
+        }
+
+        .status-btn {
+            background-color: #0f172a;
+            border: 1px solid #334155;
+            color: #94a3b8;
+            padding: 6px;
+            border-radius: 6px;
             cursor: pointer;
-            filter: drop-shadow(2px 4px 6px rgba(0,0,0,0.3));
+            font-size: 0.8rem;
+            text-align: left;
+            display: flex;
+            align-items: center;
+            gap: 6px;
         }
 
-        .food-item:active { transform: scale(0.8); }
+        .status-btn.active {
+            border-color: #3b82f6;
+            color: #ffffff;
+            background-color: #1e293b;
+            font-weight: bold;
+        }
 
+        header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 30px;
+            border-bottom: 1px solid #334155;
+            padding-bottom: 15px;
+        }
+
+        .logo {
+            font-size: 1.5rem;
+            font-weight: bold;
+        }
+
+        .add-btn {
+            background-color: #22c55e;
+            font-size: 1.5rem;
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 0;
+            border: none;
+            cursor: pointer;
+            color: white;
+        }
+        .add-btn:hover {
+            background-color: #16a34a;
+        }
+
+        #post-modal {
+            display: none;
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background-color: rgba(0,0,0,0.7);
+            justify-content: center;
+            align-items: center;
+            z-index: 100;
+        }
+
+        .modal-content {
+            background-color: #1e293b;
+            padding: 20px;
+            border-radius: 12px;
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+            width: 90%;
+            max-width: 400px;
+        }
+
+        .modal-content textarea {
+            width: 100%;
+            height: 100px;
+            resize: none;
+            box-sizing: border-box;
+        }
+
+        #posts-container {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+
+        .post-card {
+            background-color: #1e293b;
+            border: 1px solid #334155;
+            border-radius: 10px;
+            padding: 15px;
+            position: relative;
+        }
+
+        .post-author {
+            font-size: 0.85rem;
+            color: #94a3b8;
+            font-weight: bold;
+            margin-bottom: 8px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .admin-tag {
+            color: #ef4444;
+            font-weight: bold;
+            margin-right: 4px;
+        }
+
+        .post-text {
+            font-size: 1.1rem;
+            word-break: break-word;
+            margin-bottom: 12px;
+        }
+
+        .post-actions {
+            display: flex;
+            gap: 15px;
+            border-top: 1px solid #334155;
+            padding-top: 10px;
+            font-size: 0.9rem;
+        }
+
+        .action-icon {
+            cursor: pointer;
+            color: #94a3b8;
+            background: none;
+            border: none;
+            padding: 0;
+            font-size: 0.9rem;
+        }
+        .action-icon:hover {
+            color: white;
+        }
+        .action-icon.liked {
+            color: #ef4444;
+        }
+        .delete-btn {
+            color: #ef4444;
+            margin-left: auto;
+        }
+        .delete-btn:hover {
+            color: #dc2626;
+        }
+
+        .comments-section {
+            margin-top: 10px;
+            border-top: 1px dashed #334155;
+            padding-top: 8px;
+            display: none;
+        }
+
+        .comment-item {
+            font-size: 0.85rem;
+            color: #cbd5e1;
+            margin-bottom: 4px;
+            background: #0f172a;
+            padding: 5px 8px;
+            border-radius: 5px;
+        }
+
+        .comment-input-box {
+            display: flex;
+            gap: 5px;
+            margin-top: 8px;
+        }
+
+        .comment-input-box input {
+            flex: 1;
+            padding: 5px 10px;
+            font-size: 0.85rem;
+            width: auto;
+        }
+
+        .comment-input-box button {
+            padding: 5px 10px;
+            font-size: 0.85rem;
+        }
     </style>
 </head>
 <body>
 
-    <div id="mainMenu" class="screen">
-        <h1>🍔 Yemek Avcısı 🌯</h1>
-        <p style="font-size: 20px; color: #555;">Yere düşürmeden hepsini ye!</p>
+    <!-- 1. GİRİŞ EKRANI -->
+    <div id="login-screen">
+        <h2>gadanagozs.html</h2>
         
-        <div class="food-grid">
-            <button class="food-btn selected" onclick="selectFood('hamburger', this)">🍔</button>
-            <button class="food-btn" onclick="selectFood('durum', this)">🌯</button>
-            <button class="food-btn" onclick="selectFood('kraker', this)">🥨</button>
-            <button class="food-btn" onclick="selectFood('pizza', this)">🍕</button>
+        <div class="role-selector">
+            <button class="role-btn active" id="btn-user" onclick="setRole('user')">Normal Giriş</button>
+            <button class="role-btn" id="btn-admin" onclick="setRole('admin')" style="color: #ef4444;">ADMİN Giriş (Eymen)</button>
         </div>
 
-        <button class="btn btn-green" onclick="startGame()" style="font-size: 30px; padding: 20px 50px;">BAŞLA</button>
-        <button class="btn" onclick="showScreen('settingsMenu')">⚙️ Ayarlar</button>
-    </div>
-
-    <div id="settingsMenu" class="screen" style="display: none;">
-        <h2>⚙️ Oyun Ayarları</h2>
-        <h3 style="margin-bottom: 5px;">Zorluk Seviyesi:</h3>
-        <div style="margin-bottom: 30px;">
-            <button class="btn" onclick="setDifficulty('kolay')">Kolay</button>
-            <button class="btn btn-green" onclick="setDifficulty('normal')">Normal</button>
-            <button class="btn" onclick="setDifficulty('zor')" style="background-color: #c0392b;">Zor</button>
+        <div id="account-selection-container" style="display: flex; flex-direction: column; align-items: center; gap: 8px;">
+            <p style="margin: 0; font-size: 0.85rem; color: #94a3b8;">Hesap Seç:</p>
+            <div class="account-selector">
+                <button class="account-btn active" id="acc-sami" onclick="setAccount('Sami')">Sami</button>
+                <button class="account-btn" id="acc-hakki" onclick="setAccount('Hakkı')">Hakkı</button>
+                <button class="account-btn" id="acc-aras" onclick="setAccount('Aras')">Aras</button>
+                <button class="account-btn" id="acc-berat" onclick="setAccount('Berat')">Berat</button>
+            </div>
         </div>
-        <p>Mevcut Zorluk: <strong id="diffText">Normal</strong></p>
-        <button class="btn" onclick="showScreen('mainMenu')" style="margin-top: 40px;">⬅️ Ana Menüye Dön</button>
+
+        <input type="password" id="password-input" placeholder="Şifre">
+        <button class="action-btn" onclick="login()">Giriş Yap</button>
+        <p id="error-msg" style="color: #ef4444; font-size: 0.9rem;"></p>
     </div>
 
-    <div id="gameOver" class="screen" style="display: none; background-color: rgba(255,255,255,0.9);">
-        <h1 style="color: #c0392b;">Oyun Bitti!</h1>
-        <div style="font-size: 30px; margin: 20px 0;">Toplam <span id="finalScore" style="font-weight:bold; color:#e67e22;"></span> yedin.</div>
-        <button class="btn btn-green" onclick="startGame()">🔄 Tekrar Oyna</button>
-        <button class="btn" onclick="backToMenu()">🏠 Menüye Dön</button>
+    <!-- 2. ANA SİTE EKRANI -->
+    <div id="main-site">
+        <div class="sidebar">
+            <h4>Hesabınız</h4>
+            <div class="current-account-box" id="current-account-display">Sami</div>
+            
+            <!-- Durum Seçenekleri -->
+            <div class="status-selector">
+                <button class="status-btn active" id="status-online" onclick="setStatus('online')">🟢 Çevrim İçi</button>
+                <button class="status-btn" id="status-offline" onclick="setStatus('offline')">🔴 Çevrim Dışı</button>
+                <button class="status-btn" id="status-dnd" onclick="setStatus('dnd')">🟡 Rahatsız Etme</button>
+            </div>
+
+            <button class="action-btn" onclick="location.reload()" style="width: 100%; font-size: 0.85rem; background-color: #ef4444; cursor: pointer;">Çıkış Yap</button>
+        </div>
+
+        <div class="content-area">
+            <header>
+                <div class="logo">gadanagozs.html</div>
+                <button class="add-btn" onclick="openModal()">+</button>
+            </header>
+            <div id="posts-container"></div>
+        </div>
+
+        <div class="sidebar">
+            <h4>Aktif Kullanıcılar</h4>
+            <div id="active-users-list"></div>
+        </div>
     </div>
 
-    <div id="gameArea">
-        <div id="ui">
-            <div>Skor: <span id="score">0</span></div>
-            <div style="font-size: 18px; color:#e74c3c;">Kaçan: <span id="missed">0</span> / 5</div>
+    <!-- YAZI EKLEME PENCERESİ -->
+    <div id="post-modal" onclick="closeModalOutside(event)">
+        <div class="modal-content">
+            <h3>Yeni Yazı Paylaş</h3>
+            <textarea id="post-text-input" placeholder="Ne düşünüyorsun?"></textarea>
+            <button class="action-btn" onclick="addPost()">Paylaş</button>
         </div>
     </div>
 
     <script>
-        // Oyun Değişkenleri
-        let score = 0;
-        let missed = 0;
-        let gameInterval;
-        let difficultyInterval;
-        let isGameOver = false;
-        
-        // Ayarlar
-        let currentEmoji = '🍔';
-        let baseSpawnRate = 1200; 
-        let currentSpawnRate = 1200;
-        let speedMultiplier = 1;
+        let currentRole = "user";
+        let selectedAccount = "Sami";
+        let currentUser = "Sami";
+        let currentStatus = "online";
 
-        // Ekranları Yönetme Fonksiyonu
-        function showScreen(screenId) {
-            document.getElementById('mainMenu').style.display = 'none';
-            document.getElementById('settingsMenu').style.display = 'none';
-            document.getElementById('gameOver').style.display = 'none';
-            document.getElementById('gameArea').style.display = 'none';
-            
-            document.getElementById(screenId).style.display = 'flex';
-        }
-
-        // Yemek Seçimi
-        const foods = {
-            'hamburger': '🍔',
-            'durum': '🌯',
-            'kraker': '🥨',
-            'pizza': '🍕'
-        };
-
-        function selectFood(foodKey, btnElement) {
-            currentEmoji = foods[foodKey];
-            
-            // Butonların seçim efektini güncelle
-            document.querySelectorAll('.food-btn').forEach(btn => btn.classList.remove('selected'));
-            btnElement.classList.add('selected');
-        }
-
-        // Zorluk Ayarı
-        function setDifficulty(level) {
-            const diffText = document.getElementById('diffText');
-            if (level === 'kolay') {
-                baseSpawnRate = 1600;
-                speedMultiplier = 0.7;
-                diffText.innerText = "Kolay";
-            } else if (level === 'normal') {
-                baseSpawnRate = 1200;
-                speedMultiplier = 1;
-                diffText.innerText = "Normal";
-            } else if (level === 'zor') {
-                baseSpawnRate = 800;
-                speedMultiplier = 1.5;
-                diffText.innerText = "Zor";
+        function setRole(role) {
+            currentRole = role;
+            document.getElementById("error-msg").innerText = "";
+            if(role === 'user') {
+                document.getElementById("btn-user").classList.add("active");
+                document.getElementById("btn-admin").classList.remove("active");
+                document.getElementById("account-selection-container").style.display = "flex";
+            } else {
+                document.getElementById("btn-admin").classList.add("active");
+                document.getElementById("btn-user").classList.remove("active");
+                document.getElementById("account-selection-container").style.display = "none";
             }
         }
 
-        // Oyunu Başlat
-        function startGame() {
-            showScreen('gameArea'); // Oyun alanını göster
-            document.getElementById('gameArea').style.display = 'block'; // Flex yerine block kullanıyoruz
-            
-            // Değerleri sıfırla
-            score = 0;
-            missed = 0;
-            currentSpawnRate = baseSpawnRate;
-            isGameOver = false;
-            
-            document.getElementById('score').innerText = score;
-            document.getElementById('missed').innerText = missed;
-            
-            // Eski yemekleri temizle
-            document.querySelectorAll('.food-item').forEach(item => item.remove());
-
-            // Oyun döngüleri
-            createFood();
-            
-            // Zamanla hızlanma
-            difficultyInterval = setInterval(() => {
-                if(currentSpawnRate > 400) currentSpawnRate -= 100;
-            }, 5000);
+        function setAccount(accountName) {
+            selectedAccount = accountName;
+            ['Sami', 'Hakkı', 'Aras', 'Berat'].forEach(acc => {
+                let btn = document.getElementById("acc-" + acc.toLowerCase().replace('ı', 'i'));
+                if(btn) {
+                    if(acc === accountName) btn.classList.add("active");
+                    else btn.classList.remove("active");
+                }
+            });
         }
 
-        // Yemek Oluşturma
-        function createFood() {
-            if(isGameOver) return;
+        function setStatus(status) {
+            currentStatus = status;
+            ['online', 'offline', 'dnd'].forEach(s => {
+                let btn = document.getElementById("status-" + s);
+                if(btn) {
+                    if(s === status) btn.classList.add("active");
+                    else btn.classList.remove("active");
+                }
+            });
+            sendHeartbeat();
+            loadActiveUsers();
+        }
 
-            const food = document.createElement('div');
-            food.classList.add('food-item');
-            food.innerText = currentEmoji; // Seçilen emojiyi koy
+        function login() {
+            let password = document.getElementById("password-input").value;
+            let errorMsg = document.getElementById("error-msg");
+
+            if(currentRole === "user") {
+                currentUser = selectedAccount;
+                let correctPass = "";
+                if(currentUser === "Sami") correctPass = "sami123.com";
+                else if(currentUser === "Hakkı") correctPass = "hakkı.com";
+                else if(currentUser === "Aras") correctPass = "aras.com";
+                else if(currentUser === "Berat") correctPass = "berat321.com";
+
+                if(password === correctPass) {
+                    startApp();
+                } else {
+                    errorMsg.innerText = "Şifre yanlış!";
+                }
+            } else {
+                currentUser = "Eymen";
+                if(password === "gadanagozkurucusu.com") {
+                    startApp();
+                } else {
+                    errorMsg.innerText = "Şifre yanlış!";
+                }
+            }
+        }
+
+        function startApp() {
+            let mutedUsers = JSON.parse(localStorage.getItem("gadanagoz_muted")) || [];
+            if(mutedUsers.includes(currentUser) && currentRole !== "admin") {
+                alert("Bu hesap admin tarafından susturulduğu için giriş yapamaz!");
+                return;
+            }
+
+            document.getElementById("login-screen").style.display = "none";
+            document.getElementById("main-site").style.display = "flex";
+            document.getElementById("current-account-display").innerText = (currentRole === 'admin' ? '[ADMİN] ' : '') + currentUser;
             
-            const maxX = window.innerWidth - 60; // Ekrandan taşmaması için
-            food.style.left = Math.floor(Math.random() * maxX) + 'px';
-            food.style.top = '-80px'; 
+            sendHeartbeat();
+            loadPosts();
+            loadActiveUsers();
 
-            // Yemeğe Tıklama
-            food.addEventListener('mousedown', function() {
-                if(isGameOver) return;
-                
-                score += 1;
-                document.getElementById('score').innerText = score;
-                
-                this.innerText = "💥"; // Yenilme efekti
-                clearInterval(this.fallInterval);
-                setTimeout(() => this.remove(), 150);
+            setInterval(sendHeartbeat, 2000);
+            setInterval(loadActiveUsers, 2000);
+
+            // Sayfadan çıkıldığında veya kapatıldığında otomatik çevrim dışı yap
+            window.addEventListener("beforeunload", () => {
+                let activeUsers = JSON.parse(localStorage.getItem("gadanagoz_active")) || [];
+                let userObj = activeUsers.find(u => u.name === currentUser);
+                if(userObj) {
+                    userObj.status = 'offline';
+                    userObj.lastSeen = 0; // Hemen listeden düşmesini sağlar
+                    localStorage.setItem("gadanagoz_active", JSON.stringify(activeUsers));
+                }
+            });
+        }
+
+        function sendHeartbeat() {
+            if(!currentUser) return;
+            let activeUsers = JSON.parse(localStorage.getItem("gadanagoz_active")) || [];
+            let now = Date.now();
+
+            let userObj = activeUsers.find(u => u.name === currentUser);
+            if(userObj) {
+                userObj.lastSeen = now;
+                userObj.role = currentRole;
+                userObj.status = currentStatus;
+            } else {
+                activeUsers.push({ name: currentUser, role: currentRole, status: currentStatus, lastSeen: now });
+            }
+
+            localStorage.setItem("gadanagoz_active", JSON.stringify(activeUsers));
+        }
+
+        function loadActiveUsers() {
+            let listDiv = document.getElementById("active-users-list");
+            let activeUsers = JSON.parse(localStorage.getItem("gadanagoz_active")) || [];
+            let mutedUsers = JSON.parse(localStorage.getItem("gadanagoz_muted")) || [];
+            let now = Date.now();
+
+            activeUsers = activeUsers.filter(u => (now - u.lastSeen) < 5000);
+            localStorage.setItem("gadanagoz_active", JSON.stringify(activeUsers));
+            
+            listDiv.innerHTML = "";
+            
+            let visibleUsers = activeUsers.filter(u => {
+                if(u.name === currentUser) return true;
+                return u.status !== 'offline';
             });
 
-            // Mobil Dokunma
-            food.addEventListener('touchstart', function(e) {
-                e.preventDefault();
-                let event = new MouseEvent('mousedown');
-                this.dispatchEvent(event);
-            });
+            if(visibleUsers.length === 0) {
+                listDiv.innerHTML = "<div style='font-size:0.8rem; color:#64748b;'>Kimse yok</div>";
+                return;
+            }
 
-            document.getElementById('gameArea').appendChild(food);
+            visibleUsers.forEach(u => {
+                let displayName = u.role === 'admin' ? `<span style="color:#ef4444; font-weight:bold;">[ADMİN] ${u.name}</span>` : u.name;
+                
+                if(u.status === 'offline' && u.name !== currentUser && currentRole !== 'admin') return;
 
-            // Düşme Animasyonu
-            let pos = -80;
-            let fallSpeed = (3 + Math.random() * 3) * speedMultiplier;
-
-            food.fallInterval = setInterval(() => {
-                if(isGameOver) {
-                    clearInterval(food.fallInterval);
-                    return;
+                let isMuted = mutedUsers.includes(u.name);
+                
+                // Durum yazı ve nokta belirleme
+                let dotClass = 'online-dot';
+                let statusText = 'Çevrim İçi';
+                if(u.status === 'offline') {
+                    dotClass = 'offline-dot';
+                    statusText = 'Çevrim Dışı';
+                } else if(u.status === 'dnd') {
+                    dotClass = 'dnd-dot';
+                    statusText = 'Rahatsız Etme';
                 }
 
-                pos += fallSpeed;
-                food.style.top = pos + 'px';
-
-                // Yere düşerse
-                if (pos > window.innerHeight) {
-                    clearInterval(food.fallInterval);
-                    food.remove();
-                    
-                    missed++;
-                    document.getElementById('missed').innerText = missed;
-                    
-                    if(missed >= 5) {
-                        endGame();
+                let muteBtnHtml = "";
+                if(currentRole === "admin" && u.role !== "admin") {
+                    if(isMuted) {
+                        muteBtnHtml = `<button class="mute-action-btn muted" onclick="toggleMute('${u.name}')">Aç</button>`;
+                    } else {
+                        muteBtnHtml = `<button class="mute-action-btn" onclick="toggleMute('${u.name}')">Sustur</button>`;
                     }
+                } else if(isMuted) {
+                    muteBtnHtml = `<span style="font-size:0.7rem; color:#eab308;">(Susturuldu)</span>`;
                 }
-            }, 20);
 
-            if(!isGameOver) {
-                gameInterval = setTimeout(createFood, currentSpawnRate);
+                listDiv.innerHTML += `
+                    <div class="active-user-item">
+                        <div class="user-info-left">
+                            <div class="${dotClass}"></div>
+                            <span>${displayName} <span style="font-size:0.7rem; color:#94a3b8;">(${statusText})</span></span>
+                        </div>
+                        ${muteBtnHtml}
+                    </div>
+                `;
+            });
+        }
+
+        function toggleMute(username) {
+            let mutedUsers = JSON.parse(localStorage.getItem("gadanagoz_muted")) || [];
+            let index = mutedUsers.indexOf(username);
+            
+            if(index > -1) {
+                mutedUsers.splice(index, 1);
+            } else {
+                mutedUsers = [username];
+            }
+
+            localStorage.setItem("gadanagoz_muted", JSON.stringify(mutedUsers));
+            loadActiveUsers();
+        }
+
+        function openModal() {
+            if(currentStatus === 'dnd') {
+                alert("Şu an 'Rahatsız Etme' modundasın, yazı paylaşamazsın!");
+                return;
+            }
+            let mutedUsers = JSON.parse(localStorage.getItem("gadanagoz_muted")) || [];
+            if(mutedUsers.includes(currentUser)) {
+                alert("Susturulduğun için yazı paylaşamazsın!");
+                return;
+            }
+            document.getElementById("post-modal").style.display = "flex";
+        }
+
+        function closeModalOutside(event) {
+            if(event.target.id === "post-modal") {
+                document.getElementById("post-modal").style.display = "none";
             }
         }
 
-        // Oyunu Bitirme
-        function endGame() {
-            isGameOver = true;
-            clearTimeout(gameInterval);
-            clearInterval(difficultyInterval);
+        function addPost() {
+            if(currentStatus === 'dnd') {
+                alert("Şu an 'Rahatsız Etme' modundasın, yazı paylaşamazsın!");
+                return;
+            }
+            let mutedUsers = JSON.parse(localStorage.getItem("gadanagoz_muted")) || [];
+            if(mutedUsers.includes(currentUser)) {
+                alert("Susturulduğun için yazı paylaşamazsın!");
+                return;
+            }
+
+            let text = document.getElementById("post-text-input").value.trim();
+            if(text === "") return;
+
+            let posts = JSON.parse(localStorage.getItem("gadanagoz_posts")) || [];
             
-            document.getElementById('finalScore').innerText = score + " " + currentEmoji;
-            showScreen('gameOver');
+            posts.unshift({
+                id: Date.now(),
+                role: currentRole,
+                author: currentUser,
+                text: text,
+                likes: [],
+                comments: []
+            });
+
+            localStorage.setItem("gadanagoz_posts", JSON.stringify(posts));
+
+            document.getElementById("post-text-input").value = "";
+            document.getElementById("post-modal").style.display = "none";
+            loadPosts();
         }
 
-        // Menüye Dön
-        function backToMenu() {
-            isGameOver = true;
-            clearTimeout(gameInterval);
-            clearInterval(difficultyInterval);
-            document.querySelectorAll('.food-item').forEach(item => item.remove());
-            showScreen('mainMenu');
+        function likePost(id) {
+            let posts = JSON.parse(localStorage.getItem("gadanagoz_posts")) || [];
+            let post = posts.find(p => p.id === id);
+            
+            if(post) {
+                let index = post.likes.indexOf(currentUser);
+                if(index > -1) {
+                    post.likes.splice(index, 1);
+                } else {
+                    post.likes.push(currentUser);
+                }
+
+                localStorage.setItem("gadanagoz_posts", JSON.stringify(posts));
+                loadPosts();
+            }
+        }
+
+        function toggleComments(id) {
+            let section = document.getElementById(`comments-${id}`);
+            section.style.display = section.style.display === "block" ? "none" : "block";
+        }
+
+        function addComment(id) {
+            if(currentStatus === 'dnd') {
+                alert("Şu an 'Rahatsız Etme' modundasın, yorum yapamazsın!");
+                return;
+            }
+            let mutedUsers = JSON.parse(localStorage.getItem("gadanagoz_muted")) || [];
+            if(mutedUsers.includes(currentUser)) {
+                alert("Susturulduğun için yorum yapamazsın!");
+                return;
+            }
+
+            let input = document.getElementById(`comment-input-${id}`);
+            let text = input.value.trim();
+            if(text === "") return;
+
+            let posts = JSON.parse(localStorage.getItem("gadanagoz_posts")) || [];
+            let post = posts.find(p => p.id === id);
+            if(post) {
+                post.comments.push({
+                    author: currentUser,
+                    text: text
+                });
+                localStorage.setItem("gadanagoz_posts", JSON.stringify(posts));
+                loadPosts();
+            }
+        }
+
+        function deletePost(id, postAuthor, postRole) {
+            if(currentRole === "admin" || (postAuthor === currentUser && postRole === "user")) {
+                let posts = JSON.parse(localStorage.getItem("gadanagoz_posts")) || [];
+                posts = posts.filter(p => p.id !== id);
+                localStorage.setItem("gadanagoz_posts", JSON.stringify(posts));
+                loadPosts();
+            } else {
+                alert("Bu gönderiyi silme yetkin yok!");
+            }
+        }
+
+        function loadPosts() {
+            let container = document.getElementById("posts-container");
+            let posts = JSON.parse(localStorage.getItem("gadanagoz_posts")) || [];
+            
+            container.innerHTML = "";
+
+            if(posts.length === 0) {
+                container.innerHTML = "<p style='text-align:center; color:#64748b;'>Henüz hiç yazı paylaşılmamış. + butonuna basarak ilk yazıyı sen ekle!</p>";
+                return;
+            }
+
+            posts.forEach(post => {
+                let card = document.createElement("div");
+                card.className = "post-card";
+                
+                let authorDisplay = post.role === 'admin' 
+                    ? `<span class="admin-tag">[ADMİN]</span> ${post.author}` 
+                    : post.author;
+
+                let canDelete = (currentRole === "admin") || (post.author === currentUser && post.role === "user");
+                let deleteBtnHtml = canDelete ? `<button class="action-icon delete-btn" onclick="deletePost(${post.id}, '${post.author}', '${post.role}')">Sil</button>` : '';
+
+                let hasLiked = post.likes.includes(currentUser);
+                let likeClass = hasLiked ? "action-icon liked" : "action-icon";
+                let likeText = hasLiked ? "❤️ Beğendin" : "❤️ Beğen";
+
+                let commentsHtml = post.comments.map(c => `<div class="comment-item"><b>${c.author}:</b> ${c.text}</div>`).join('');
+
+                card.innerHTML = `
+                    <div class="post-author">
+                        <span>${authorDisplay}</span>
+                    </div>
+                    <div class="post-text">${post.text}</div>
+                    <div class="post-actions">
+                        <button class="${likeClass}" onclick="likePost(${post.id})">${likeText} (${post.likes.length})</button>
+                        <button class="action-icon" onclick="toggleComments(${post.id})">💬 Yorum Yap (${post.comments.length})</button>
+                        ${deleteBtnHtml}
+                    </div>
+                    <div id="comments-${post.id}" class="comments-section" style="display:none;">
+                        <div>${commentsHtml}</div>
+                        <div class="comment-input-box">
+                            <input type="text" id="comment-input-${post.id}" placeholder="Yorum yaz...">
+                            <button class="action-btn" onclick="addComment(${post.id})">Gönder</button>
+                        </div>
+                    </div>
+                `;
+                container.appendChild(card);
+            });
         }
     </script>
 </body>
