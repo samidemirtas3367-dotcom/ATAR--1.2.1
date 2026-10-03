@@ -1,789 +1,758 @@
-           <!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="tr">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>gadanagozs.html</title>
+    <title>Retro Atari Salonu</title>
     <style>
         body {
-            margin: 0;
-            min-height: 100vh;
             background-color: #0f172a;
-            font-family: Arial, sans-serif;
-            color: #ffffff;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-        }
-
-        /* Giriş Ekranı */
-        #login-screen {
+            color: #38bdf8;
+            font-family: 'Courier New', Courier, monospace;
             display: flex;
             flex-direction: column;
             align-items: center;
             justify-content: center;
-            height: 100vh;
-            gap: 15px;
-            position: relative;
-            z-index: 10;
+            min-height: 100vh;
+            margin: 0;
+            overflow: hidden;
+            user-select: none;
+            -webkit-user-select: none;
         }
-
-        .role-selector, .account-selector {
-            display: flex;
-            gap: 8px;
+        h1 {
             margin-bottom: 5px;
-            flex-wrap: wrap;
-            justify-content: center;
-            max-width: 320px;
+            text-shadow: 0 0 10px #38bdf8;
+            font-size: 2rem;
+            letter-spacing: 2px;
         }
-
-        .role-btn, .account-btn {
-            background-color: #1e293b;
+        .subtitle {
+            color: #94a3b8;
+            font-size: 0.9rem;
+            margin-bottom: 20px;
+        }
+        .menu-container, .game-container {
+            background: #1e293b;
+            padding: 25px;
+            border-radius: 16px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.5);
             border: 2px solid #334155;
+            text-align: center;
+            max-width: 420px;
+            width: 90%;
+        }
+        .menu-btn {
+            background: #3b82f6;
             color: white;
-            padding: 8px 12px;
+            border: none;
+            padding: 15px 25px;
+            font-size: 1.1rem;
             border-radius: 8px;
             cursor: pointer;
             font-weight: bold;
-            font-size: 0.9rem;
+            display: block;
+            width: 100%;
+            margin: 10px 0;
+            transition: 0.2s;
+            font-family: inherit;
         }
-
-        .role-btn.active, .account-btn.active {
-            border-color: #3b82f6;
-            background-color: #1d4ed8;
+        .menu-btn:hover {
+            background: #2563eb;
+            transform: scale(1.02);
         }
-
-        input, textarea {
-            padding: 10px 15px;
-            font-size: 1rem;
-            border-radius: 8px;
-            border: 1px solid #334155;
-            background-color: #1e293b;
-            color: white;
+        canvas {
+            border: 4px solid #38bdf8;
+            background-color: #000;
+            box-shadow: 0 0 15px rgba(56, 189, 248, 0.3);
+            display: block;
+            margin: 0 auto;
             outline: none;
-            width: 250px;
         }
-
-        button.action-btn {
+        .score-board {
+            font-size: 1.2rem;
+            margin-bottom: 5px;
+            font-weight: bold;
+        }
+        .message-board {
+            font-size: 0.85rem;
+            color: #ef4444;
+            height: 25px;
+            font-weight: bold;
+            margin-bottom: 5px;
+        }
+        .back-btn {
+            background: #ef4444;
+            color: white;
+            border: none;
             padding: 10px 20px;
             font-size: 1rem;
-            background-color: #3b82f6;
-            color: white;
-            border: none;
-            border-radius: 8px;
+            border-radius: 6px;
             cursor: pointer;
+            margin-top: 15px;
+            font-family: inherit;
             font-weight: bold;
         }
-
-        button.action-btn:hover {
-            background-color: #2563eb;
-        }
-
-        /* Ana Site Alanı */
-        #main-site {
-            display: none;
-            width: 100%;
-            max-width: 1050px;
-            padding: 20px;
-            box-sizing: border-box;
-            gap: 20px;
+        .back-btn:hover { opacity: 0.9; }
+        .hidden { display: none !important; }
+        
+        /* Kontrol Seçim Ekranı */
+        .control-select-box {
+            display: flex;
+            gap: 15px;
             justify-content: center;
+            margin-top: 5px;
         }
-
-        .content-area {
-            flex: 1;
-            max-width: 550px;
-        }
-
-        .sidebar {
-            width: 210px;
-            background-color: #1e293b;
-            border: 1px solid #334155;
+        .control-card {
+            background: #334155;
+            border: 2px solid #475569;
             border-radius: 10px;
-            padding: 15px;
-            height: fit-content;
-        }
-
-        .sidebar h4 {
-            margin-top: 0;
-            color: #38bdf8;
+            padding: 10px;
+            cursor: pointer;
+            flex: 1;
+            transition: 0.2s;
             font-size: 0.95rem;
-            border-bottom: 1px solid #334155;
-            padding-bottom: 8px;
+        }
+        .control-card:hover, .control-card.active {
+            border-color: #38bdf8;
+            background: #1e293b;
         }
 
-        .active-user-item {
-            font-size: 0.85rem;
-            padding: 6px 0;
-            color: #cbd5e1;
+        /* Sanal Kontrol Panelleri */
+        .touch-controls {
             display: flex;
-            justify-content: space-between;
+            justify-content: center;
             align-items: center;
-            border-bottom: 1px solid #1e293b;
+            gap: 15px;
+            margin-top: 15px;
         }
-
-        .user-info-left {
-            display: flex;
-            align-items: center;
-            gap: 6px;
-        }
-
-        .online-dot {
-            width: 8px;
-            height: 8px;
-            background-color: #22c55e;
-            border-radius: 50%;
-            box-shadow: 0 0 6px #22c55e;
-        }
-
-        .offline-dot {
-            width: 8px;
-            height: 8px;
-            background-color: #ef4444;
-            border-radius: 50%;
-            box-shadow: 0 0 6px #ef4444;
-        }
-
-        .dnd-dot {
-            width: 8px;
-            height: 8px;
-            background-color: #eab308;
-            border-radius: 50%;
-            box-shadow: 0 0 6px #eab308;
-        }
-
-        .mute-action-btn {
-            background-color: #ef4444;
-            color: white;
-            border: none;
-            padding: 2px 6px;
-            font-size: 0.75rem;
-            border-radius: 4px;
-            cursor: pointer;
-        }
-        .mute-action-btn.muted {
-            background-color: #eab308;
-        }
-
-        .current-account-box {
-            font-size: 0.9rem;
-            background: #0f172a;
-            padding: 8px;
-            border-radius: 6px;
-            text-align: center;
-            font-weight: bold;
+        .v-btn {
+            background: #334155;
             color: #38bdf8;
-            margin-bottom: 10px;
-        }
-
-        /* Durum Seçici (Sol Panel) */
-        .status-selector {
-            display: flex;
-            flex-direction: column;
-            gap: 5px;
-            margin-bottom: 15px;
-        }
-
-        .status-btn {
-            background-color: #0f172a;
-            border: 1px solid #334155;
-            color: #94a3b8;
-            padding: 6px;
-            border-radius: 6px;
-            cursor: pointer;
-            font-size: 0.8rem;
-            text-align: left;
-            display: flex;
-            align-items: center;
-            gap: 6px;
-        }
-
-        .status-btn.active {
-            border-color: #3b82f6;
-            color: #ffffff;
-            background-color: #1e293b;
+            border: 2px solid #38bdf8;
+            font-size: 1.2rem;
             font-weight: bold;
-        }
-
-        header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 30px;
-            border-bottom: 1px solid #334155;
-            padding-bottom: 15px;
-        }
-
-        .logo {
-            font-size: 1.5rem;
-            font-weight: bold;
-        }
-
-        .add-btn {
-            background-color: #22c55e;
-            font-size: 1.5rem;
-            width: 40px;
-            height: 40px;
-            border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            padding: 0;
-            border: none;
-            cursor: pointer;
-            color: white;
-        }
-        .add-btn:hover {
-            background-color: #16a34a;
-        }
-
-        #post-modal {
-            display: none;
-            position: fixed;
-            top: 0; left: 0; width: 100%; height: 100%;
-            background-color: rgba(0,0,0,0.7);
-            justify-content: center;
-            align-items: center;
-            z-index: 100;
-        }
-
-        .modal-content {
-            background-color: #1e293b;
-            padding: 20px;
+            width: 55px;
+            height: 55px;
             border-radius: 12px;
-            display: flex;
-            flex-direction: column;
-            gap: 15px;
-            width: 90%;
-            max-width: 400px;
-        }
-
-        .modal-content textarea {
-            width: 100%;
-            height: 100px;
-            resize: none;
-            box-sizing: border-box;
-        }
-
-        #posts-container {
-            display: flex;
-            flex-direction: column;
-            gap: 15px;
-        }
-
-        .post-card {
-            background-color: #1e293b;
-            border: 1px solid #334155;
-            border-radius: 10px;
-            padding: 15px;
-            position: relative;
-        }
-
-        .post-author {
-            font-size: 0.85rem;
-            color: #94a3b8;
-            font-weight: bold;
-            margin-bottom: 8px;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-        }
-
-        .admin-tag {
-            color: #ef4444;
-            font-weight: bold;
-            margin-right: 4px;
-        }
-
-        .post-text {
-            font-size: 1.1rem;
-            word-break: break-word;
-            margin-bottom: 12px;
-        }
-
-        .post-actions {
-            display: flex;
-            gap: 15px;
-            border-top: 1px solid #334155;
-            padding-top: 10px;
-            font-size: 0.9rem;
-        }
-
-        .action-icon {
             cursor: pointer;
-            color: #94a3b8;
-            background: none;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.3);
+            touch-action: manipulation;
+        }
+        .v-btn:active {
+            background: #38bdf8;
+            color: #0f172a;
+        }
+        .d-pad {
+            display: grid;
+            grid-template-columns: repeat(3, 55px);
+            grid-template-rows: repeat(3, 55px);
+            gap: 5px;
+            justify-content: center;
+        }
+        .d-up { grid-column: 2; grid-row: 1; }
+        .d-left { grid-column: 1; grid-row: 2; }
+        .d-right { grid-column: 3; grid-row: 2; }
+        .d-down { grid-column: 2; grid-row: 3; }
+
+        /* Rulet Stilleri */
+        .roulette-box {
+            font-size: 1.05rem;
+            margin: 10px 0;
+            color: #f8fafc;
+            min-height: 50px;
+        }
+        .roulette-btns {
+            display: flex;
+            gap: 15px;
+            justify-content: center;
+            margin-top: 15px;
+        }
+        .r-btn {
+            background: #475569;
+            color: white;
             border: none;
-            padding: 0;
+            padding: 15px 25px;
+            font-size: 1.2rem;
+            border-radius: 10px;
+            cursor: pointer;
+            font-family: inherit;
+            font-weight: bold;
+        }
+        .r-btn:hover { background: #64748b; }
+        .quiz-card {
+            background: #0f172a;
+            border: 1px solid #475569;
+            padding: 12px;
+            border-radius: 8px;
+            margin-bottom: 10px;
+            text-align: left;
             font-size: 0.9rem;
         }
-        .action-icon:hover {
+        .quiz-opt {
+            background: #1e293b;
             color: white;
-        }
-        .action-icon.liked {
-            color: #ef4444;
-        }
-        .delete-btn {
-            color: #ef4444;
-            margin-left: auto;
-        }
-        .delete-btn:hover {
-            color: #dc2626;
-        }
-
-        .comments-section {
-            margin-top: 10px;
-            border-top: 1px dashed #334155;
-            padding-top: 8px;
-            display: none;
-        }
-
-        .comment-item {
-            font-size: 0.85rem;
-            color: #cbd5e1;
-            margin-bottom: 4px;
-            background: #0f172a;
-            padding: 5px 8px;
+            border: 1px solid #334155;
+            padding: 7px 10px;
+            margin: 4px 0;
+            width: 100%;
             border-radius: 5px;
-        }
-
-        .comment-input-box {
-            display: flex;
-            gap: 5px;
-            margin-top: 8px;
-        }
-
-        .comment-input-box input {
-            flex: 1;
-            padding: 5px 10px;
-            font-size: 0.85rem;
-            width: auto;
-        }
-
-        .comment-input-box button {
-            padding: 5px 10px;
+            cursor: pointer;
+            text-align: left;
+            font-family: inherit;
             font-size: 0.85rem;
         }
+        .quiz-opt:hover { background: #334155; }
     </style>
 </head>
 <body>
 
-    <!-- 1. GİRİŞ EKRANI -->
-    <div id="login-screen">
-        <h2>gadanagozs.html</h2>
+    <h1>ATARI SALONU</h1>
+    <div class="subtitle">Retro Eğlence Merkezi</div>
+
+    <!-- ANA MENÜ -->
+    <div id="main-menu" class="menu-container">
+        <div style="font-size: 0.85rem; color: #94a3b8; margin-bottom: 3px;">Kontrol Tercihi:</div>
+        <div class="control-select-box">
+            <div class="control-card active" id="ctrl-keyboard" onclick="setControlMode('keyboard')">
+                ⌨️ Klavye
+            </div>
+            <div class="control-card" id="ctrl-touch" onclick="setControlMode('touch')">
+                📱 Dokunmatik
+            </div>
+        </div>
+
+        <div style="font-size: 0.85rem; color: #94a3b8; margin-top: 10px; margin-bottom: 3px;">Oyun Hızı (FPS):</div>
+        <select id="global-fps" style="padding: 8px; font-size: 1rem; width: 100%; text-align: center; background: #0f172a; color: white; border: 1px solid #475569; border-radius: 6px; font-family: inherit; margin-bottom: 15px;">
+            <option value="30">30 FPS (Akıllı Tahta / Yavaş)</option>
+            <option value="60" selected>60 FPS (Normal / Akıcı)</option>
+            <option value="120">120 FPS (120 Hz Ekran / Ultra)</option>
+        </select>
+
+        <button class="menu-btn" onclick="startSnake()">🐍 Yılan Oyunu</button>
+        <button class="menu-btn" onclick="startTetrisSetup()">🧱 Tetris</button>
+        <button class="menu-btn" onclick="startRouletteMenu()">🎯 Şanslı Rus Ruleti</button>
+    </div>
+
+    <!-- TETRİS MOD SEÇİM EKRANI -->
+    <div id="tetris-setup-area" class="game-container hidden">
+        <h2>Tetris Modu</h2>
+        <label style="font-size:0.9rem; color:#94a3b8; display:block; margin-bottom:8px;">Akış Stili Seçin:</label>
+        <select id="tetris-mode" style="padding: 10px; font-size: 1.05rem; width: 100%; text-align: center; background: #0f172a; color: white; border: 1px solid #475569; border-radius: 6px; font-family: inherit; margin-bottom: 20px;">
+            <option value="normal">Normal Mod (Kutu Kutu / Klasik)</option>
+            <option value="smooth" selected>Ultra Akıcı Mod (Piksel Piksel Yumuşak)</option>
+        </select>
+        <br>
+        <button class="menu-btn" onclick="startTetris()">Oyunu Başlat</button>
+        <button class="back-btn" onclick="returnToMenu()">Geri Dön</button>
+    </div>
+
+    <!-- OYUN ALANI -->
+    <div id="game-area" class="game-container hidden">
+        <div class="score-board">Skor: <span id="score">0</span></div>
+        <div class="message-board" id="msg-board"></div>
+        <canvas id="canvas" width="300" height="420" tabindex="1"></canvas>
         
-        <div class="role-selector">
-            <button class="role-btn active" id="btn-user" onclick="setRole('user')">Normal Giriş</button>
-            <button class="role-btn" id="btn-admin" onclick="setRole('admin')" style="color: #ef4444;">ADMİN Giriş (Eymen)</button>
-        </div>
-
-        <div id="account-selection-container" style="display: flex; flex-direction: column; align-items: center; gap: 8px;">
-            <p style="margin: 0; font-size: 0.85rem; color: #94a3b8;">Hesap Seç:</p>
-            <div class="account-selector">
-                <button class="account-btn active" id="acc-sami" onclick="setAccount('Sami')">Sami</button>
-                <button class="account-btn" id="acc-hakki" onclick="setAccount('Hakkı')">Hakkı</button>
-                <button class="account-btn" id="acc-aras" onclick="setAccount('Aras')">Aras</button>
-                <button class="account-btn" id="acc-berat" onclick="setAccount('Berat')">Berat</button>
+        <!-- Yılan İçin Sanal Tuş Takımı -->
+        <div id="snake-touch-controls" class="touch-controls hidden">
+            <div class="d-pad">
+                <button class="v-btn d-up" ontouchstart="changeSnakeDir(0, -1); event.preventDefault();" onclick="changeSnakeDir(0, -1)">⬆️</button>
+                <button class="v-btn d-left" ontouchstart="changeSnakeDir(-1, 0); event.preventDefault();" onclick="changeSnakeDir(-1, 0)">⬅️</button>
+                <button class="v-btn d-right" ontouchstart="changeSnakeDir(1, 0); event.preventDefault();" onclick="changeSnakeDir(1, 0)">➡️</button>
+                <button class="v-btn d-down" ontouchstart="changeSnakeDir(0, 1); event.preventDefault();" onclick="changeSnakeDir(0, 1)">⬇️</button>
             </div>
         </div>
 
-        <input type="password" id="password-input" placeholder="Şifre">
-        <button class="action-btn" onclick="login()">Giriş Yap</button>
-        <p id="error-msg" style="color: #ef4444; font-size: 0.9rem;"></p>
-    </div>
-
-    <!-- 2. ANA SİTE EKRANI -->
-    <div id="main-site">
-        <div class="sidebar">
-            <h4>Hesabınız</h4>
-            <div class="current-account-box" id="current-account-display">Sami</div>
-            
-            <!-- Durum Seçenekleri -->
-            <div class="status-selector">
-                <button class="status-btn active" id="status-online" onclick="setStatus('online')">🟢 Çevrim İçi</button>
-                <button class="status-btn" id="status-offline" onclick="setStatus('offline')">🔴 Çevrim Dışı</button>
-                <button class="status-btn" id="status-dnd" onclick="setStatus('dnd')">🟡 Rahatsız Etme</button>
+        <!-- Tetris İçin Sanal Tuş Takımı -->
+        <div id="tetris-touch-controls" class="touch-controls hidden" style="justify-content: space-around; align-items: center;">
+            <div style="display: flex; gap: 5px;">
+                <button class="v-btn" ontouchstart="moveTetrisH(-1); event.preventDefault();" onclick="moveTetrisH(-1)">⬅️</button>
+                <button class="v-btn" ontouchstart="moveTetrisDown(); event.preventDefault();" onclick="moveTetrisDown()">⬇️</button>
+                <button class="v-btn" ontouchstart="moveTetrisH(1); event.preventDefault();" onclick="moveTetrisH(1)">➡️</button>
             </div>
-
-            <button class="action-btn" onclick="location.reload()" style="width: 100%; font-size: 0.85rem; background-color: #ef4444; cursor: pointer;">Çıkış Yap</button>
+            <div style="display: flex; gap: 5px;">
+                <button class="v-btn" style="background:#b91c1c; border-color:#ef4444;" ontouchstart="rotateTetris(); event.preventDefault();" onclick="rotateTetris()">🔄</button>
+            </div>
         </div>
 
-        <div class="content-area">
-            <header>
-                <div class="logo">gadanagozs.html</div>
-                <button class="add-btn" onclick="openModal()">+</button>
-            </header>
-            <div id="posts-container"></div>
-        </div>
-
-        <div class="sidebar">
-            <h4>Aktif Kullanıcılar</h4>
-            <div id="active-users-list"></div>
-        </div>
+        <button class="back-btn" onclick="returnToMenu()">Ana Menüye Dön</button>
     </div>
 
-    <!-- YAZI EKLEME PENCERESİ -->
-    <div id="post-modal" onclick="closeModalOutside(event)">
-        <div class="modal-content">
-            <h3>Yeni Yazı Paylaş</h3>
-            <textarea id="post-text-input" placeholder="Ne düşünüyorsun?"></textarea>
-            <button class="action-btn" onclick="addPost()">Paylaş</button>
+    <!-- RUS RULETİ SEÇİM & OYUN -->
+    <div id="roulette-area" class="game-container hidden">
+        <div id="r-menu">
+            <h2>Rus Ruleti Modu</h2>
+            <button class="menu-btn" onclick="startClassicRoulette()">Klasik Mod (Tek Kişilik Şans)</button>
+            <button class="menu-btn" onclick="startQuizRouletteSetup()">7. Sınıf İngilizce Yarışması</button>
+            <button class="back-btn" onclick="returnToMenu()">Geri Dön</button>
+        </div>
+
+        <div id="r-play" class="hidden">
+            <h2 id="r-title" style="font-size: 1.3rem;">Rus Ruleti</h2>
+            <div class="roulette-box" id="r-status">Oyun Başlıyor...</div>
+            <div id="quiz-container" class="hidden"></div>
+            <div class="roulette-btns" id="r-action-btns">
+                <button class="r-btn" onclick="playRouletteChoice(0)">Tuş 1</button>
+                <button class="r-btn" onclick="playRouletteChoice(1)">Tuş 2</button>
+            </div>
+            <br>
+            <button class="back-btn" onclick="returnToMenu()">Menüye Dön</button>
         </div>
     </div>
 
     <script>
-        let currentRole = "user";
-        let selectedAccount = "Sami";
-        let currentUser = "Sami";
-        let currentStatus = "online";
+        const canvas = document.getElementById("canvas");
+        const ctx = canvas.getContext("2d");
+        let currentGame = null;
+        let gameInterval = null;
+        let controlMode = "keyboard";
 
-        function setRole(role) {
-            currentRole = role;
-            document.getElementById("error-msg").innerText = "";
-            if(role === 'user') {
-                document.getElementById("btn-user").classList.add("active");
-                document.getElementById("btn-admin").classList.remove("active");
-                document.getElementById("account-selection-container").style.display = "flex";
-            } else {
-                document.getElementById("btn-admin").classList.add("active");
-                document.getElementById("btn-user").classList.remove("active");
-                document.getElementById("account-selection-container").style.display = "none";
-            }
+        function setControlMode(mode) {
+            controlMode = mode;
+            document.getElementById("ctrl-keyboard").classList.toggle("active", mode === "keyboard");
+            document.getElementById("ctrl-touch").classList.toggle("active", mode === "touch");
         }
 
-        function setAccount(accountName) {
-            selectedAccount = accountName;
-            ['Sami', 'Hakkı', 'Aras', 'Berat'].forEach(acc => {
-                let btn = document.getElementById("acc-" + acc.toLowerCase().replace('ı', 'i'));
-                if(btn) {
-                    if(acc === accountName) btn.classList.add("active");
-                    else btn.classList.remove("active");
-                }
-            });
+        function returnToMenu() {
+            clearInterval(gameInterval);
+            document.getElementById("main-menu").classList.remove("hidden");
+            document.getElementById("game-area").classList.add("hidden");
+            document.getElementById("roulette-area").classList.add("hidden");
+            document.getElementById("tetris-setup-area").classList.add("hidden");
+            document.getElementById("msg-board").innerText = "";
         }
 
-        function setStatus(status) {
-            currentStatus = status;
-            ['online', 'offline', 'dnd'].forEach(s => {
-                let btn = document.getElementById("status-" + s);
-                if(btn) {
-                    if(s === status) btn.classList.add("active");
-                    else btn.classList.remove("active");
-                }
-            });
-            sendHeartbeat();
-            loadActiveUsers();
+        function showScreenMessage(text) {
+            const msg = document.getElementById("msg-board");
+            msg.innerText = text;
+            setTimeout(() => {
+                if(msg.innerText === text) msg.innerText = "";
+            }, 1500);
         }
 
-        function login() {
-            let password = document.getElementById("password-input").value;
-            let errorMsg = document.getElementById("error-msg");
+        // --- YILAN OYUNU ---
+        let snake, food, dx, dy, snakeScore, gridSize, tileCountX, tileCountY;
+        let snakeMoveCounter = 0;
+        let snakeSpeedThreshold = 10;
 
-            if(currentRole === "user") {
-                currentUser = selectedAccount;
-                let correctPass = "";
-                if(currentUser === "Sami") correctPass = "sami123.com";
-                else if(currentUser === "Hakkı") correctPass = "hakkı.com";
-                else if(currentUser === "Aras") correctPass = "aras.com";
-                else if(currentUser === "Berat") correctPass = "berat321.com";
-
-                if(password === correctPass) {
-                    startApp();
-                } else {
-                    errorMsg.innerText = "Şifre yanlış!";
-                }
-            } else {
-                currentUser = "Eymen";
-                if(password === "gadanagozkurucusu.com") {
-                    startApp();
-                } else {
-                    errorMsg.innerText = "Şifre yanlış!";
-                }
-            }
-        }
-
-        function startApp() {
-            let mutedUsers = JSON.parse(localStorage.getItem("gadanagoz_muted")) || [];
-            if(mutedUsers.includes(currentUser) && currentRole !== "admin") {
-                alert("Bu hesap admin tarafından susturulduğu için giriş yapamaz!");
-                return;
-            }
-
-            document.getElementById("login-screen").style.display = "none";
-            document.getElementById("main-site").style.display = "flex";
-            document.getElementById("current-account-display").innerText = (currentRole === 'admin' ? '[ADMİN] ' : '') + currentUser;
+        function startSnake() {
+            document.getElementById("main-menu").classList.add("hidden");
+            document.getElementById("game-area").classList.remove("hidden");
+            currentGame = "snake";
+            document.getElementById("msg-board").innerText = "";
             
-            sendHeartbeat();
-            loadPosts();
-            loadActiveUsers();
+            document.getElementById("snake-touch-controls").classList.toggle("hidden", controlMode !== "touch");
+            document.getElementById("tetris-touch-controls").classList.add("hidden");
+            
+            gridSize = 20;
+            tileCountX = canvas.width / gridSize; 
+            tileCountY = canvas.height / gridSize; 
+            snake = [{x: 7, y: 10}, {x: 6, y: 10}, {x: 5, y: 10}];
+            dx = 1; dy = 0;
+            snakeScore = 0;
+            snakeMoveCounter = 0;
+            document.getElementById("score").innerText = snakeScore;
+            spawnSnakeFood();
 
-            setInterval(sendHeartbeat, 2000);
-            setInterval(loadActiveUsers, 2000);
-
-            // Sayfadan çıkıldığında veya kapatıldığında otomatik çevrim dışı yap
-            window.addEventListener("beforeunload", () => {
-                let activeUsers = JSON.parse(localStorage.getItem("gadanagoz_active")) || [];
-                let userObj = activeUsers.find(u => u.name === currentUser);
-                if(userObj) {
-                    userObj.status = 'offline';
-                    userObj.lastSeen = 0; // Hemen listeden düşmesini sağlar
-                    localStorage.setItem("gadanagoz_active", JSON.stringify(activeUsers));
-                }
-            });
+            canvas.focus();
+            
+            const fps = parseInt(document.getElementById("global-fps").value) || 60;
+            snakeSpeedThreshold = Math.max(2, Math.round(fps / 6)); 
+            
+            clearInterval(gameInterval);
+            gameInterval = setInterval(updateSnake, 1000 / fps);
         }
 
-        function sendHeartbeat() {
-            if(!currentUser) return;
-            let activeUsers = JSON.parse(localStorage.getItem("gadanagoz_active")) || [];
-            let now = Date.now();
-
-            let userObj = activeUsers.find(u => u.name === currentUser);
-            if(userObj) {
-                userObj.lastSeen = now;
-                userObj.role = currentRole;
-                userObj.status = currentStatus;
-            } else {
-                activeUsers.push({ name: currentUser, role: currentRole, status: currentStatus, lastSeen: now });
-            }
-
-            localStorage.setItem("gadanagoz_active", JSON.stringify(activeUsers));
+        function spawnSnakeFood() {
+            food = {
+                x: Math.floor(Math.random() * tileCountX),
+                y: Math.floor(Math.random() * tileCountY)
+            };
         }
 
-        function loadActiveUsers() {
-            let listDiv = document.getElementById("active-users-list");
-            let activeUsers = JSON.parse(localStorage.getItem("gadanagoz_active")) || [];
-            let mutedUsers = JSON.parse(localStorage.getItem("gadanagoz_muted")) || [];
-            let now = Date.now();
+        function changeSnakeDir(newDx, newDy) {
+            if (newDx !== 0 && dx === 0) { dx = newDx; dy = 0; }
+            if (newDy !== 0 && dy === 0) { dx = 0; dy = newDy; }
+        }
 
-            activeUsers = activeUsers.filter(u => (now - u.lastSeen) < 5000);
-            localStorage.setItem("gadanagoz_active", JSON.stringify(activeUsers));
-            
-            listDiv.innerHTML = "";
-            
-            let visibleUsers = activeUsers.filter(u => {
-                if(u.name === currentUser) return true;
-                return u.status !== 'offline';
-            });
+        function updateSnake() {
+            snakeMoveCounter++;
+            if (snakeMoveCounter >= snakeSpeedThreshold) {
+                snakeMoveCounter = 0;
+                const head = { x: snake[0].x + dx, y: snake[0].y + dy };
 
-            if(visibleUsers.length === 0) {
-                listDiv.innerHTML = "<div style='font-size:0.8rem; color:#64748b;'>Kimse yok</div>";
-                return;
-            }
-
-            visibleUsers.forEach(u => {
-                let displayName = u.role === 'admin' ? `<span style="color:#ef4444; font-weight:bold;">[ADMİN] ${u.name}</span>` : u.name;
-                
-                if(u.status === 'offline' && u.name !== currentUser && currentRole !== 'admin') return;
-
-                let isMuted = mutedUsers.includes(u.name);
-                
-                // Durum yazı ve nokta belirleme
-                let dotClass = 'online-dot';
-                let statusText = 'Çevrim İçi';
-                if(u.status === 'offline') {
-                    dotClass = 'offline-dot';
-                    statusText = 'Çevrim Dışı';
-                } else if(u.status === 'dnd') {
-                    dotClass = 'dnd-dot';
-                    statusText = 'Rahatsız Etme';
+                if (head.x < 0 || head.x >= tileCountX || head.y < 0 || head.y >= tileCountY) {
+                    showScreenMessage("Yılan duvara çarptı! Sıfırlanıyor...");
+                    resetSnake();
+                    return;
                 }
-
-                let muteBtnHtml = "";
-                if(currentRole === "admin" && u.role !== "admin") {
-                    if(isMuted) {
-                        muteBtnHtml = `<button class="mute-action-btn muted" onclick="toggleMute('${u.name}')">Aç</button>`;
-                    } else {
-                        muteBtnHtml = `<button class="mute-action-btn" onclick="toggleMute('${u.name}')">Sustur</button>`;
+                for (let i = 0; i < snake.length; i++) {
+                    if (head.x === snake[i].x && head.y === snake[i].y) {
+                        showScreenMessage("Yılan kendine çarptı! Sıfırlanıyor...");
+                        resetSnake();
+                        return;
                     }
-                } else if(isMuted) {
-                    muteBtnHtml = `<span style="font-size:0.7rem; color:#eab308;">(Susturuldu)</span>`;
                 }
 
-                listDiv.innerHTML += `
-                    <div class="active-user-item">
-                        <div class="user-info-left">
-                            <div class="${dotClass}"></div>
-                            <span>${displayName} <span style="font-size:0.7rem; color:#94a3b8;">(${statusText})</span></span>
-                        </div>
-                        ${muteBtnHtml}
-                    </div>
-                `;
-            });
-        }
-
-        function toggleMute(username) {
-            let mutedUsers = JSON.parse(localStorage.getItem("gadanagoz_muted")) || [];
-            let index = mutedUsers.indexOf(username);
-            
-            if(index > -1) {
-                mutedUsers.splice(index, 1);
-            } else {
-                mutedUsers = [username];
-            }
-
-            localStorage.setItem("gadanagoz_muted", JSON.stringify(mutedUsers));
-            loadActiveUsers();
-        }
-
-        function openModal() {
-            if(currentStatus === 'dnd') {
-                alert("Şu an 'Rahatsız Etme' modundasın, yazı paylaşamazsın!");
-                return;
-            }
-            let mutedUsers = JSON.parse(localStorage.getItem("gadanagoz_muted")) || [];
-            if(mutedUsers.includes(currentUser)) {
-                alert("Susturulduğun için yazı paylaşamazsın!");
-                return;
-            }
-            document.getElementById("post-modal").style.display = "flex";
-        }
-
-        function closeModalOutside(event) {
-            if(event.target.id === "post-modal") {
-                document.getElementById("post-modal").style.display = "none";
-            }
-        }
-
-        function addPost() {
-            if(currentStatus === 'dnd') {
-                alert("Şu an 'Rahatsız Etme' modundasın, yazı paylaşamazsın!");
-                return;
-            }
-            let mutedUsers = JSON.parse(localStorage.getItem("gadanagoz_muted")) || [];
-            if(mutedUsers.includes(currentUser)) {
-                alert("Susturulduğun için yazı paylaşamazsın!");
-                return;
-            }
-
-            let text = document.getElementById("post-text-input").value.trim();
-            if(text === "") return;
-
-            let posts = JSON.parse(localStorage.getItem("gadanagoz_posts")) || [];
-            
-            posts.unshift({
-                id: Date.now(),
-                role: currentRole,
-                author: currentUser,
-                text: text,
-                likes: [],
-                comments: []
-            });
-
-            localStorage.setItem("gadanagoz_posts", JSON.stringify(posts));
-
-            document.getElementById("post-text-input").value = "";
-            document.getElementById("post-modal").style.display = "none";
-            loadPosts();
-        }
-
-        function likePost(id) {
-            let posts = JSON.parse(localStorage.getItem("gadanagoz_posts")) || [];
-            let post = posts.find(p => p.id === id);
-            
-            if(post) {
-                let index = post.likes.indexOf(currentUser);
-                if(index > -1) {
-                    post.likes.splice(index, 1);
+                snake.unshift(head);
+                if (head.x === food.x && head.y === food.y) {
+                    snakeScore += 10;
+                    document.getElementById("score").innerText = snakeScore;
+                    spawnSnakeFood();
                 } else {
-                    post.likes.push(currentUser);
+                    snake.pop();
                 }
-
-                localStorage.setItem("gadanagoz_posts", JSON.stringify(posts));
-                loadPosts();
             }
+
+            drawSnakeGame();
         }
 
-        function toggleComments(id) {
-            let section = document.getElementById(`comments-${id}`);
-            section.style.display = section.style.display === "block" ? "none" : "block";
+        function resetSnake() {
+            snake = [{x: 7, y: 10}, {x: 6, y: 10}, {x: 5, y: 10}];
+            dx = 1; dy = 0;
+            snakeScore = 0;
+            document.getElementById("score").innerText = snakeScore;
+            spawnSnakeFood();
         }
 
-        function addComment(id) {
-            if(currentStatus === 'dnd') {
-                alert("Şu an 'Rahatsız Etme' modundasın, yorum yapamazsın!");
-                return;
-            }
-            let mutedUsers = JSON.parse(localStorage.getItem("gadanagoz_muted")) || [];
-            if(mutedUsers.includes(currentUser)) {
-                alert("Susturulduğun için yorum yapamazsın!");
-                return;
-            }
+        function drawSnakeGame() {
+            ctx.fillStyle = "#000";
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
 
-            let input = document.getElementById(`comment-input-${id}`);
-            let text = input.value.trim();
-            if(text === "") return;
+            ctx.fillStyle = "#ef4444";
+            ctx.fillRect(food.x * gridSize, food.y * gridSize, gridSize - 2, gridSize - 2);
 
-            let posts = JSON.parse(localStorage.getItem("gadanagoz_posts")) || [];
-            let post = posts.find(p => p.id === id);
-            if(post) {
-                post.comments.push({
-                    author: currentUser,
-                    text: text
-                });
-                localStorage.setItem("gadanagoz_posts", JSON.stringify(posts));
-                loadPosts();
-            }
-        }
-
-        function deletePost(id, postAuthor, postRole) {
-            if(currentRole === "admin" || (postAuthor === currentUser && postRole === "user")) {
-                let posts = JSON.parse(localStorage.getItem("gadanagoz_posts")) || [];
-                posts = posts.filter(p => p.id !== id);
-                localStorage.setItem("gadanagoz_posts", JSON.stringify(posts));
-                loadPosts();
-            } else {
-                alert("Bu gönderiyi silme yetkin yok!");
-            }
-        }
-
-        function loadPosts() {
-            let container = document.getElementById("posts-container");
-            let posts = JSON.parse(localStorage.getItem("gadanagoz_posts")) || [];
-            
-            container.innerHTML = "";
-
-            if(posts.length === 0) {
-                container.innerHTML = "<p style='text-align:center; color:#64748b;'>Henüz hiç yazı paylaşılmamış. + butonuna basarak ilk yazıyı sen ekle!</p>";
-                return;
-            }
-
-            posts.forEach(post => {
-                let card = document.createElement("div");
-                card.className = "post-card";
-                
-                let authorDisplay = post.role === 'admin' 
-                    ? `<span class="admin-tag">[ADMİN]</span> ${post.author}` 
-                    : post.author;
-
-                let canDelete = (currentRole === "admin") || (post.author === currentUser && post.role === "user");
-                let deleteBtnHtml = canDelete ? `<button class="action-icon delete-btn" onclick="deletePost(${post.id}, '${post.author}', '${post.role}')">Sil</button>` : '';
-
-                let hasLiked = post.likes.includes(currentUser);
-                let likeClass = hasLiked ? "action-icon liked" : "action-icon";
-                let likeText = hasLiked ? "❤️ Beğendin" : "❤️ Beğen";
-
-                let commentsHtml = post.comments.map(c => `<div class="comment-item"><b>${c.author}:</b> ${c.text}</div>`).join('');
-
-                card.innerHTML = `
-                    <div class="post-author">
-                        <span>${authorDisplay}</span>
-                    </div>
-                    <div class="post-text">${post.text}</div>
-                    <div class="post-actions">
-                        <button class="${likeClass}" onclick="likePost(${post.id})">${likeText} (${post.likes.length})</button>
-                        <button class="action-icon" onclick="toggleComments(${post.id})">💬 Yorum Yap (${post.comments.length})</button>
-                        ${deleteBtnHtml}
-                    </div>
-                    <div id="comments-${post.id}" class="comments-section" style="display:none;">
-                        <div>${commentsHtml}</div>
-                        <div class="comment-input-box">
-                            <input type="text" id="comment-input-${post.id}" placeholder="Yorum yaz...">
-                            <button class="action-btn" onclick="addComment(${post.id})">Gönder</button>
-                        </div>
-                    </div>
-                `;
-                container.appendChild(card);
+            snake.forEach((part, idx) => {
+                ctx.fillStyle = idx === 0 ? "#22c55e" : "#38bdf8";
+                ctx.fillRect(part.x * gridSize, part.y * gridSize, gridSize - 2, gridSize - 2);
             });
+        }
+
+        // --- TETRİS OYUNU ---
+        const BLOCK_SIZE = 20;
+        const T_COLS = 15; 
+        const T_ROWS = 21; 
+        let tetrisScore = 0;
+        let board = [];
+        let currentPiece = null;
+        let tetrisDropCounter = 0;
+        let tetrisDropThreshold = 20;
+        let tetrisMode = "smooth";
+        let exactRow = 0;
+
+        const tetrisShapes = [
+            { shape: [[1, 1, 1, 1]], color: "#06b6d4" }, // I
+            { shape: [[1, 1], [1, 1]], color: "#eab308" }, // O
+            { shape: [[0, 1, 0], [1, 1, 1]], color: "#a855f7" }, // T
+            { shape: [[1, 0], [1, 0], [1, 1]], color: "#3b82f6" }, // L
+            { shape: [[0, 1], [0, 1], [1, 1]], color: "#f97316" }, // J
+            { shape: [[0, 1, 1], [1, 1, 0]], color: "#22c55e" }, // S
+            { shape: [[1, 1, 0], [0, 1, 1]], color: "#ef4444" }  // Z
+        ];
+
+        function startTetrisSetup() {
+            document.getElementById("main-menu").classList.add("hidden");
+            document.getElementById("tetris-setup-area").classList.remove("hidden");
+        }
+
+        function startTetris() {
+            document.getElementById("tetris-setup-area").classList.add("hidden");
+            document.getElementById("game-area").classList.remove("hidden");
+            currentGame = "tetris";
+            tetrisScore = 0;
+            tetrisDropCounter = 0;
+            document.getElementById("score").innerText = tetrisScore;
+            document.getElementById("msg-board").innerText = "";
+
+            tetrisMode = document.getElementById("tetris-mode").value;
+
+            document.getElementById("snake-touch-controls").classList.add("hidden");
+            document.getElementById("tetris-touch-controls").classList.toggle("hidden", controlMode !== "touch");
+
+            board = Array.from({ length: T_ROWS }, () => Array(T_COLS).fill(0));
+            spawnTetrisPiece();
+
+            canvas.focus();
+
+            const fps = parseInt(document.getElementById("global-fps").value) || 60;
+            tetrisDropThreshold = fps;
+
+            clearInterval(gameInterval);
+            gameInterval = setInterval(updateTetris, 1000 / fps);
+        }
+
+        function spawnTetrisPiece() {
+            const rand = tetrisShapes[Math.floor(Math.random() * tetrisShapes.length)];
+            currentPiece = {
+                shape: rand.shape,
+                color: rand.color,
+                row: 0,
+                col: Math.floor(T_COLS / 2) - Math.floor(rand.shape[0].length / 2)
+            };
+            exactRow = currentPiece.row;
+
+            if (checkCollision(currentPiece.row, currentPiece.col, currentPiece.shape)) {
+                showScreenMessage("OYUN BİTTİ! Yeniden Başlıyor...");
+                board = Array.from({ length: T_ROWS }, () => Array(T_COLS).fill(0));
+                tetrisScore = 0;
+                document.getElementById("score").innerText = tetrisScore;
+            }
+        }
+
+        function checkCollision(r, c, shape) {
+            for (let i = 0; i < shape.length; i++) {
+                for (let j = 0; j < shape[i].length; j++) {
+                    if (shape[i][j]) {
+                        let newR = r + i;
+                        let newC = c + j;
+                        if (newC < 0 || newC >= T_COLS || newR >= T_ROWS) return true;
+                        if (newR >= 0 && board[newR][newC]) return true;
+                    }
+                }
+            }
+            return false;
+        }
+
+        function mergePiece() {
+            for (let i = 0; i < currentPiece.shape.length; i++) {
+                for (let j = 0; j < currentPiece.shape[i].length; j++) {
+                    if (currentPiece.shape[i][j]) {
+                        let r = currentPiece.row + i;
+                        let c = currentPiece.col + j;
+                        if (r >= 0) board[r][c] = currentPiece.color;
+                    }
+                }
+            }
+        }
+
+        function clearLines() {
+            let linesCleared = 0;
+            for (let r = T_ROWS - 1; r >= 0; r--) {
+                if (board[r].every(cell => cell !== 0)) {
+                    board.splice(r, 1);
+                    board.unshift(Array(T_COLS).fill(0));
+                    linesCleared++;
+                    r++; 
+                }
+            }
+            if (linesCleared > 0) {
+                tetrisScore += linesCleared * 100;
+                document.getElementById("score").innerText = tetrisScore;
+                showScreenMessage(`+${linesCleared * 100} Puan!`);
+            }
+        }
+
+        function updateTetris() {
+            if (!currentPiece) return;
+
+            const fps = parseInt(document.getElementById("global-fps").value) || 60;
+
+            if (tetrisMode === "smooth") {
+                let stepSize = 1 / fps; 
+                if (!checkCollision(Math.floor(exactRow + stepSize), currentPiece.col, currentPiece.shape)) {
+                    exactRow += stepSize;
+                    currentPiece.row = Math.floor(exactRow);
+                } else {
+                    currentPiece.row = Math.floor(exactRow);
+                    mergePiece();
+                    clearLines();
+                    spawnTetrisPiece();
+                    exactRow = currentPiece.row;
+                }
+            } else {
+                tetrisDropCounter++;
+                let threshold = Math.max(2, Math.round(fps / 1));
+                if (tetrisDropCounter >= threshold) {
+                    tetrisDropCounter = 0;
+                    if (!checkCollision(currentPiece.row + 1, currentPiece.col, currentPiece.shape)) {
+                        currentPiece.row++;
+                        exactRow = currentPiece.row;
+                    } else {
+                        mergePiece();
+                        clearLines();
+                        spawnTetrisPiece();
+                        exactRow = currentPiece.row;
+                    }
+                }
+            }
+            drawTetrisGame();
+        }
+
+        function drawTetrisGame() {
+            ctx.fillStyle = "#000";
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+            for (let r = 0; r < T_ROWS; r++) {
+                for (let c = 0; c < T_COLS; c++) {
+                    if (board[r][c]) {
+                        ctx.fillStyle = board[r][c];
+                        ctx.fillRect(c * BLOCK_SIZE, r * BLOCK_SIZE, BLOCK_SIZE - 2, BLOCK_SIZE - 2);
+                    }
+                }
+            }
+
+            if (currentPiece) {
+                ctx.fillStyle = currentPiece.color;
+                for (let i = 0; i < currentPiece.shape.length; i++) {
+                    for (let j = 0; j < currentPiece.shape[i].length; j++) {
+                        if (currentPiece.shape[i][j]) {
+                            let drawY;
+                            if (tetrisMode === "smooth") {
+                                drawY = (exactRow + i) * BLOCK_SIZE;
+                            } else {
+                                drawY = (currentPiece.row + i) * BLOCK_SIZE;
+                            }
+                            ctx.fillRect((currentPiece.col + j) * BLOCK_SIZE, drawY, BLOCK_SIZE - 2, BLOCK_SIZE - 2);
+                        }
+                    }
+                }
+            }
+        }
+
+        function rotateTetris() {
+            if (!currentPiece) return;
+            let rotated = currentPiece.shape[0].map((_, index) => currentPiece.shape.map(row => row[index]).reverse());
+            if (!checkCollision(currentPiece.row, currentPiece.col, rotated)) {
+                currentPiece.shape = rotated;
+            }
+        }
+
+        function moveTetrisH(dir) {
+            if (!currentPiece) return;
+            if (!checkCollision(currentPiece.row, currentPiece.col + dir, currentPiece.shape)) {
+                currentPiece.col += dir;
+            }
+        }
+
+        function moveTetrisDown() {
+            if (!currentPiece) return;
+            if (!checkCollision(currentPiece.row + 1, currentPiece.col, currentPiece.shape)) {
+                currentPiece.row++;
+                exactRow = currentPiece.row;
+            }
+        }
+
+        // --- GLOBAL KLAVYE DİNLEYİCİSİ ---
+        window.addEventListener("keydown", function(e) {
+            if (!currentGame) return;
+
+            if(["ArrowUp","ArrowDown","ArrowLeft","ArrowRight"," "].includes(e.key)) {
+                e.preventDefault();
+            }
+
+            if (currentGame === "snake") {
+                if ((e.key === "ArrowLeft" || e.key === "KeyA" || e.key === "a" || e.key === "A") && dx === 0) { dx = -1; dy = 0; }
+                if ((e.key === "ArrowUp" || e.key === "KeyW" || e.key === "w" || e.key === "W") && dy === 0) { dx = 0; dy = -1; }
+                if ((e.key === "ArrowRight" || e.key === "KeyD" || e.key === "d" || e.key === "D") && dx === 0) { dx = 1; dy = 0; }
+                if ((e.key === "ArrowDown" || e.key === "KeyS" || e.key === "s" || e.key === "S") && dy === 0) { dx = 0; dy = 1; }
+            } else if (currentGame === "tetris" && currentPiece) {
+                if (e.key === "ArrowLeft" || e.key === "KeyA" || e.key === "a" || e.key === "A") {
+                    moveTetrisH(-1);
+                }
+                if (e.key === "ArrowRight" || e.key === "KeyD" || e.key === "d" || e.key === "D") {
+                    moveTetrisH(1);
+                }
+                if (e.key === "ArrowDown" || e.key === "KeyS" || e.key === "s" || e.key === "S") {
+                    moveTetrisDown();
+                }
+                if (e.key === "ArrowUp" || e.key === "KeyW" || e.key === "w" || e.key === "W" || e.key === "KeyF" || e.key === "f" || e.key === "F") {
+                    rotateTetris();
+                }
+            }
+        });
+
+        // --- RUS RULETİ & 7. SINIF İNGİLİZCE YARIŞMASI ---
+        let rouletteMode = "classic"; 
+        let safeButton = 0;
+        let currentQuiz = null;
+
+        const grade7EnglishQuestions = [
+            { q: "What is the meaning of 'generous'?", options: ["Cimri", "Cömert", "Tembel", "Çalışkan"], answer: 1 },
+            { q: "Which animal has got a 'trunk' and 'tusks'?", options: ["Lion", "Elephant", "Snake", "Giraffe"], answer: 1 },
+            { q: "What does 'punctual' mean?", options: ["Dakik, zamanında gelen", "Unutkan", "Kaba", "Şişman"], answer: 0 },
+            { q: "Choose the correct past form of 'go':", options: ["goed", "went", "gone", "going"], answer: 1 },
+            { q: "What is the Turkish meaning of 'forecast'?", options: ["Hava durumu tahmini", "Gelecek", "Geçmiş", "Fırtına"], answer: 0 },
+            { q: "Which one is a 'wild animal'?", options: ["Cat", "Cow", "Cheetah", "Sheep"], answer: 2 },
+            { q: "What is the comparative form of 'tall'?", options: ["taller", "more tall", "tallest", "the tallest"], answer: 0 },
+            { q: "What does 'outgoing' mean?", options: ["İçe dönük", "Sosyal, dışa dönük", "Yalnız", "Üzgün"], answer: 1 },
+            { q: "Which planet is known as the 'Red Planet'?", options: ["Earth", "Venus", "Mars", "Jupiter"], answer: 2 },
+            { q: "What is the past form of 'buy'?", options: ["buyed", "bought", "buyd", "buying"], answer: 1 },
+            { q: "What is the meaning of 'stubborn'?", options: ["İnatçı", "Yardımsever", "Sakin", "Zayıf"], answer: 0 },
+            { q: "Which instrument do you use in 'science laboratory'?", options: ["Guitar", "Microscope", "Football", "Racket"], answer: 1 },
+            { q: "Choose the correct option: 'He ___ to school every day.'", options: ["go", "goes", "going", "went"], answer: 1 },
+            { q: "What is the Turkish meaning of 'environment'?", options: ["Çevre", "Enerji", "Ev", "Okul"], answer: 0 },
+            { q: "What is the comparative form of 'good'?", options: ["gooder", "better", "best", "the best"], answer: 1 },
+            { q: "Which one is a 'reptile'?", options: ["Eagle", "Crocodile", "Dolphin", "Bat"], answer: 1 },
+            { q: "What does 'plump' mean?", options: ["Zayıf", "Uzun", "Balık etli, tombul", "Kısa"], answer: 2 },
+            { q: "What is the past form of 'see'?", options: ["saw", "seed", "seen", "seeing"], answer: 0 },
+            { q: "What is a synonym (eş anlamlısı) of 'slim'?", options: ["fat", "thin", "heavy", "tall"], answer: 1 },
+            { q: "What do we use to protect endangered animals?", options: ["Hunting", "Pollution", "National parks", "Factories"], answer: 2 }
+        ];
+
+        function startRouletteMenu() {
+            document.getElementById("main-menu").classList.add("hidden");
+            document.getElementById("roulette-area").classList.remove("hidden");
+            document.getElementById("r-menu").classList.remove("hidden");
+            document.getElementById("r-play").classList.add("hidden");
+        }
+
+        function startClassicRoulette() {
+            rouletteMode = "classic";
+            document.getElementById("r-menu").classList.add("hidden");
+            document.getElementById("r-play").classList.remove("hidden");
+            document.getElementById("quiz-container").classList.add("hidden");
+            document.getElementById("r-action-btns").classList.remove("hidden");
+            document.getElementById("r-title").innerText = "Klasik Rus Ruleti";
+            nextClassicRound();
+        }
+
+        function nextClassicRound() {
+            safeButton = Math.floor(Math.random() * 2);
+            document.getElementById("r-status").innerText = "Şanslı tuşu seç! Biri güvenli, biri patlama tuşu.";
+        }
+
+        function playRouletteChoice(choice) {
+            if (choice === safeButton) {
+                document.getElementById("r-status").innerText = "🎉 Şanslısın! Silah boş çıktı, kurtuldun!";
+                setTimeout(nextClassicRound, 1500);
+            } else {
+                document.getElementById("r-status").innerHTML = "<span style='color: #ef4444;'>💥 BOOM! Kaybettin! 😢</span>";
+                setTimeout(nextClassicRound, 1800);
+            }
+        }
+
+        function startQuizRouletteSetup() {
+            rouletteMode = "quiz";
+            document.getElementById("r-menu").classList.add("hidden");
+            document.getElementById("r-play").classList.remove("hidden");
+            document.getElementById("quiz-container").classList.remove("hidden");
+            document.getElementById("r-action-btns").classList.add("hidden");
+            document.getElementById("r-title").innerText = "7. Sınıf İngilizce Yarışması Ruleti";
+            loadNewQuizQuestion();
+        }
+
+        function loadNewQuizQuestion() {
+            const randomIndex = Math.floor(Math.random() * grade7EnglishQuestions.length);
+            currentQuiz = grade7EnglishQuestions[randomIndex];
+
+            let html = `<div class="quiz-card"><b>Question:</b> ${currentQuiz.q}<br>`;
+            currentQuiz.options.forEach((opt, idx) => {
+                html += `<button class="quiz-opt" onclick="answerQuiz(${idx})">${String.fromCharCode(65 + idx)}) ${opt}</button>`;
+            });
+            html += `</div>`;
+            document.getElementById("quiz-container").innerHTML = html;
+            document.getElementById("r-status").innerText = "Doğru bilirsen silah boşa patlar, yanlış bilirsen patlar!";
+        }
+
+        function answerQuiz(selectedIdx) {
+            if (selectedIdx === currentQuiz.answer) {
+                document.getElementById("r-status").innerHTML = "<span style='color: #22c55e;'>✅ Correct! Silah boş patladı, hayattasın! 🎉</span>";
+                setTimeout(loadNewQuizQuestion, 2000);
+            } else {
+                document.getElementById("r-status").innerHTML = `<span style='color: #ef4444;'>❌ Wrong! Silah DOLUYDU! BOOM! Kaybettin. 😢</span>`;
+                setTimeout(loadNewQuizQuestion, 2500);
+            }
         }
     </script>
 </body>
